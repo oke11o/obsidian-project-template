@@ -2,5 +2,6 @@
   "newFileLocation": "current",
   "newLinkFormat": "relative",
   "useMarkdownLinks": true,
-  "attachmentFolderPath": "X-Attachment"
+  "attachmentFolderPath": "X-Attachment",
+  "showLineNumber": true
 }

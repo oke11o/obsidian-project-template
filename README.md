@@ -5,7 +5,7 @@
 ```shell
 git clone <template-project.git> your-project-title
 cd your-project-title
-echo '# your-project-title' >> README.md
+echo '# your-project-title' > README.md
 rm -rf .git
 git init --initial-branch=main
 git remote add origin <your-new-project.git>
