@@ -10,16 +10,10 @@ siblings:
 ---
 # 📅 <% moment(tp.file.title,'YYYY-MM-DD').format("dddd, MMMM DD, YYYY") %>
 
-# 📝 TODO
-
-
-
-
-# Notes last touched today
 ***Notes last touched***
 ```dataview
 LIST
-FROM -"999-daily"
+FROM -"X-Daily"
 WHERE file.mday = date("<%moment(tp.file.title,'YYYY-MM-DD').format("YYYY-MM-DD")%>") OR file.cday = date("<%moment(tp.file.title,'YYYY-MM-DD').format("YYYY-MM-DD")%>") SORT file.mtime desc
 ```
 
