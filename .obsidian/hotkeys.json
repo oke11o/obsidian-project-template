@@ -17,20 +17,13 @@
       "key": "G"
     }
   ],
-  "app:go-back": [
+  "open-with-default-app:show": [
     {
       "modifiers": [
-        "Mod"
+        "Mod",
+        "Shift"
       ],
-      "key": "["
-    }
-  ],
-  "app:go-forward": [
-    {
-      "modifiers": [
-        "Mod"
-      ],
-      "key": "]"
+      "key": "O"
     }
   ],
   "app:toggle-left-sidebar": [
@@ -47,12 +40,6 @@
         "Mod"
       ],
       "key": "2"
-    }
-  ],
-  "file-explorer:move-file": [
-    {
-      "modifiers": [],
-      "key": "F6"
     }
   ],
   "workspace:goto-tab-1": [
@@ -93,6 +80,49 @@
         "Alt"
       ],
       "key": "5"
+    }
+  ],
+  "app:go-forward": [
+    {
+      "modifiers": [
+        "Mod"
+      ],
+      "key": "]"
+    }
+  ],
+  "app:go-back": [
+    {
+      "modifiers": [
+        "Mod"
+      ],
+      "key": "["
+    }
+  ],
+  "obsidian-git:open-diff-view": [
+    {
+      "modifiers": [
+        "Mod",
+        "Shift"
+      ],
+      "key": "D"
+    }
+  ],
+  "obsidian-git:commit": [
+    {
+      "modifiers": [
+        "Mod",
+        "Shift"
+      ],
+      "key": "C"
+    }
+  ],
+  "obsidian-git:push2": [
+    {
+      "modifiers": [
+        "Mod",
+        "Shift"
+      ],
+      "key": "P"
     }
   ]
 }
