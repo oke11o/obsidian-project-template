@@ -99,11 +99,10 @@ var ImgurAuthModal = class extends import_obsidian.Modal {
     this.addNoWaitDiv(this.intervalId);
     new import_obsidian.ButtonComponent(this.modalEl.createDiv()).setButtonText("Cancel").setCta().onClick(() => this.close());
   }
-  async onClose() {
+  onClose() {
     clearInterval(this.intervalId);
     this.opened = false;
-    if (this.afterClose)
-      await this.afterClose();
+    if (this.afterClose) void this.afterClose();
   }
   addNoWaitDiv(interval) {
     const linkEl = createEl("a", { href: this.authLink, text: "here" });
@@ -166,15 +165,24 @@ var ImgurAuthenticationStatus = class {
     this.authStatusDiv.setText("\u26A0\uFE0F Not authenticated. See console for error");
     this.addAuthButton();
   }
+  disableAuthButton() {
+    var _a;
+    (_a = this.authButton) == null ? void 0 : _a.setDisabled(true);
+  }
+  enableAuthButton() {
+    var _a;
+    (_a = this.authButton) == null ? void 0 : _a.setDisabled(false);
+  }
   clear() {
     this.authStatusDiv.empty();
     this.buttonsDiv.empty();
+    this.authButton = void 0;
   }
   addLogoutButton() {
     new import_obsidian2.ButtonComponent(this.buttonsDiv).setButtonText("Logout").setWarning().onClick((e) => this.logoutButtonClick(e));
   }
   addAuthButton() {
-    new import_obsidian2.ButtonComponent(this.buttonsDiv).setButtonText("Authenticate").setCta().onClick((e) => this.authButtonClick(e));
+    this.authButton = new import_obsidian2.ButtonComponent(this.buttonsDiv).setButtonText("Authenticate").setCta().onClick((e) => this.authButtonClick(e));
   }
 };
 
@@ -257,8 +265,7 @@ var ImgurPluginSettingsTab = class _ImgurPluginSettingsTab extends import_obsidi
     this.authenticatedUserName = void 0;
     this.plugin = plugin;
     this.plugin.registerObsidianProtocolHandler("imgur-oauth", (params) => {
-      if (!this.authModal || !this.authModal.isOpen)
-        return;
+      if (!this.authModal || !this.authModal.isOpen) return;
       if (params.error) {
         new import_obsidian4.Notice(`Authentication failed with error: ${params.error}`);
         return;
@@ -308,14 +315,14 @@ var ImgurPluginSettingsTab = class _ImgurPluginSettingsTab extends import_obsidi
     this.drawClientIdField(parentEl);
     if (this.plugin.settings.uploadStrategy === UploadStrategy.AUTHENTICATED_IMGUR.id) {
       await this.createAuthenticationInfoBlock(parentEl);
-      if (this.authenticatedUserName)
-        this.drawAlbumSettings(parentEl);
+      if (this.authenticatedUserName) this.drawAlbumSettings(parentEl);
     }
   }
   drawClientIdField(containerEl) {
     new import_obsidian4.Setting(containerEl).setName("Client ID").setTooltip(`Personal Client ID is required for plugin to work`, { delay: 1 }).setDesc(_ImgurPluginSettingsTab.clientIdSettingDescription()).addText(
       (text) => text.setPlaceholder("Enter your client_id").setValue(this.plugin.settings.clientId).onChange((value) => {
         this.plugin.settings.clientId = value;
+        this.enableOrDisableAuthenticationButton();
       })
     );
   }
@@ -334,9 +341,14 @@ var ImgurPluginSettingsTab = class _ImgurPluginSettingsTab extends import_obsidi
     fragment.append(" or follow ", newClientIdInstructionsLink, " to generate new Client ID.");
     return fragment;
   }
+  enableOrDisableAuthenticationButton() {
+    if (this.plugin.settings.clientId) this.authElem.enableAuthButton();
+    else this.authElem.disableAuthButton();
+  }
   async createAuthenticationInfoBlock(parentEl) {
     this.authElem = new ImgurAuthenticationStatus(parentEl);
     await this.drawAuthenticationInfo();
+    this.enableOrDisableAuthenticationButton();
     this.authElem.authButtonClick = () => {
       const modal = new ImgurAuthModal(this.plugin.settings.clientId, this.app, async () => {
         await this.drawAuthenticationInfo();
@@ -673,8 +685,7 @@ var RemoteUploadConfirmationDialog = class extends import_obsidian7.Modal {
     this.close();
   }
   onClose() {
-    if (!this.userResponded)
-      this.deferredResolve({ shouldUpload: void 0 });
+    if (!this.userResponded) this.deferredResolve({ shouldUpload: void 0 });
   }
 };
 
@@ -719,8 +730,7 @@ function isImageIdOfExpectedSize(imageId) {
 }
 function mdImagePiecesFrom(arr) {
   const imageId = arr[4];
-  if (!isImageIdOfExpectedSize(imageId))
-    throw Error("Imgur image id is of unexpcted size");
+  if (!isImageIdOfExpectedSize(imageId)) throw Error("Imgur image id is of unexpcted size");
   return {
     ...arr[1] && { urlPrefix: arr[1] },
     imgPrefix: arr[2],
@@ -805,10 +815,8 @@ var resizing_default = resizeTo;
 var editorCheckCallbackFor = (size) => (checking, editor) => {
   const lineNumber = editor.getCursor().line;
   const match = md_image_parsing_default(editor.getLine(lineNumber), editor.getCursor().ch);
-  if (!match.exists)
-    return false;
-  if (checking && match.exists)
-    return true;
+  if (!match.exists) return false;
+  if (checking && match.exists) return true;
   let replacement;
   try {
     replacement = resizing_default(size)(match.mdImagePieces);
@@ -831,11 +839,9 @@ var plugin_callback_default = editorCheckCallbackFor;
 
 // src/utils/FileList.ts
 function allFilesAreImages(files) {
-  if (files.length === 0)
-    return false;
+  if (files.length === 0) return false;
   for (let i = 0; i < files.length; i += 1) {
-    if (!files[i].type.startsWith("image"))
-      return false;
+    if (!files[i].type.startsWith("image")) return false;
   }
   return true;
 }
@@ -996,15 +1002,13 @@ var ImgurPlugin = class _ImgurPlugin extends import_obsidian12.Plugin {
   constructor() {
     super(...arguments);
     this.customPasteEventCallback = async (e, _, markdownView) => {
-      if (e instanceof PasteEventCopy)
-        return;
+      if (e instanceof PasteEventCopy) return;
       if (!this.imgUploader) {
         _ImgurPlugin.showUnconfiguredPluginNotice();
         return;
       }
       const { files } = e.clipboardData;
-      if (!allFilesAreImages(files))
-        return;
+      if (!allFilesAreImages(files)) return;
       e.preventDefault();
       if (this.settings.showRemoteUploadConfirmation) {
         const modal = new RemoteUploadConfirmationDialog(this.app);
@@ -1033,8 +1037,7 @@ var ImgurPlugin = class _ImgurPlugin extends import_obsidian12.Plugin {
       }
     };
     this.customDropEventListener = async (e, _, markdownView) => {
-      if (e instanceof DragEventCopy)
-        return;
+      if (e instanceof DragEventCopy) return;
       if (!this.imgUploader) {
         _ImgurPlugin.showUnconfiguredPluginNotice();
         return;
@@ -1043,8 +1046,7 @@ var ImgurPlugin = class _ImgurPlugin extends import_obsidian12.Plugin {
         return;
       }
       const { files } = e.dataTransfer;
-      if (!allFilesAreImages(files))
-        return;
+      if (!allFilesAreImages(files)) return;
       e.preventDefault();
       if (this.settings.showRemoteUploadConfirmation) {
         const modal = new RemoteUploadConfirmationDialog(this.app);
@@ -1087,19 +1089,15 @@ var ImgurPlugin = class _ImgurPlugin extends import_obsidian12.Plugin {
     };
     this.imgurPluginRightClickHandler = (menu, editor, view) => {
       const clickable = editor.getClickableTokenAt(editor.getCursor());
-      if (!clickable)
-        return;
-      if (clickable.type !== "internal-link")
-        return;
+      if (!clickable) return;
+      if (clickable.type !== "internal-link") return;
       const [localImageExpectedStart, localImageExpectedEnd] = localEmbeddedImageExpectedBoundaries(clickable);
       const clickablePrefix = editor.getRange(localImageExpectedStart, clickable.start);
       const clickableSuffix = editor.getRange(clickable.end, localImageExpectedEnd);
-      if (clickablePrefix !== "![[" || clickableSuffix !== "]]")
-        return;
+      if (clickablePrefix !== "![[" || clickableSuffix !== "]]") return;
       const lt = (0, import_obsidian12.parseLinktext)(clickable.text);
       const file = view.app.metadataCache.getFirstLinkpathDest(lt.path, view.file.path);
-      if (!IMGUR_POTENTIALLY_SUPPORTED_FILES_EXTENSIONS.includes(file.extension))
-        return;
+      if (!IMGUR_POTENTIALLY_SUPPORTED_FILES_EXTENSIONS.includes(file.extension)) return;
       menu.addItem((item) => {
         item.setTitle("Upload to Imgur").setIcon("wand").onClick(
           () => this.uploadLocalImageFromEditor(
@@ -1124,8 +1122,7 @@ var ImgurPlugin = class _ImgurPlugin extends import_obsidian12.Plugin {
     const otherReferencesByNote = this.getAllCachedReferencesForFile(originalLocalFile);
     removeReferenceToOriginalNoteIfPresent(otherReferencesByNote, originalReference);
     const notesWithSameLocalFile = Object.keys(otherReferencesByNote);
-    if (notesWithSameLocalFile.length === 0)
-      return;
+    if (notesWithSameLocalFile.length === 0) return;
     this.showLinksUpdateDialog(originalLocalFile, remoteImageUrl, otherReferencesByNote);
   }
   getAllCachedReferencesForFile(file) {
@@ -1133,8 +1130,7 @@ var ImgurPlugin = class _ImgurPlugin extends import_obsidian12.Plugin {
     const notesWithLinks = [];
     for (const [notePath, noteLinks] of Object.entries(allLinks)) {
       for (const [linkName] of Object.entries(noteLinks)) {
-        if (linkName === file.name)
-          notesWithLinks.push(notePath);
+        if (linkName === file.name) notesWithLinks.push(notePath);
       }
     }
     const linksByNote = notesWithLinks.reduce(
@@ -1208,7 +1204,10 @@ var ImgurPlugin = class _ImgurPlugin extends import_obsidian12.Plugin {
   async saveSettings() {
     await this.saveData(this.settings);
   }
-  async onload() {
+  onload() {
+    void this.initPlugin();
+  }
+  async initPlugin() {
     await this.loadSettings();
     this.addSettingTab(new ImgurPluginSettingsTab(this.app, this));
     this.setupImagesUploader();
@@ -1218,12 +1217,10 @@ var ImgurPlugin = class _ImgurPlugin extends import_obsidian12.Plugin {
   setupImagesUploader() {
     const uploader = buildUploaderFrom(this.settings);
     this.imgUploaderField = uploader;
-    if (!uploader)
-      return;
+    if (!uploader) return;
     const originalUploadFunction = uploader.upload;
     uploader.upload = function(image, albumId) {
-      if (!uploader)
-        return;
+      if (!uploader) return;
       return originalUploadFunction.call(uploader, fixImageTypeIfNeeded(image), albumId);
     };
   }
@@ -1326,8 +1323,7 @@ var ImgurPlugin = class _ImgurPlugin extends import_obsidian12.Plugin {
   }
 };
 function removeReferenceToOriginalNoteIfPresent(otherReferencesByNote, originalNote) {
-  if (!Object.keys(otherReferencesByNote).includes(originalNote.path))
-    return;
+  if (!Object.keys(otherReferencesByNote).includes(originalNote.path)) return;
   const refsFromOriginalNote = otherReferencesByNote[originalNote.path];
   const originalRefStart = originalNote.startPosition;
   const refForExclusion = refsFromOriginalNote.find(
