@@ -37,6 +37,7 @@ var IMGUR_API_BASE = "https://api.imgur.com/3";
 var IMGUR_ACCESS_TOKEN_LOCALSTORAGE_KEY = "imgur-access_token";
 var IMGUR_POTENTIALLY_SUPPORTED_FILES_EXTENSIONS = [
   "jpeg",
+  "jpg",
   "png",
   "gif",
   "apng",
@@ -1345,3 +1346,5 @@ function getFilesAndLinksStats(otherReferencesByNote) {
     )
   };
 }
+
+/* nosourcemap */
