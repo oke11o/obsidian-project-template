@@ -13,7 +13,7 @@ siblings:
 ***Notes last touched***
 ```dataview
 LIST
-FROM -"X-Daily"
+FROM -"__Z/X-Daily"
 WHERE file.mday = date("<%moment(tp.file.title,'YYYY-MM-DD').format("YYYY-MM-DD")%>") OR file.cday = date("<%moment(tp.file.title,'YYYY-MM-DD').format("YYYY-MM-DD")%>") SORT file.mtime desc
 ```
 
