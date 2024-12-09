@@ -1,6 +1,6 @@
 {
   "command_timeout": 5,
-  "templates_folder": "__Z/X-Templates",
+  "templates_folder": "__X/Templates",
   "templates_pairs": [
     [
       "",
@@ -16,7 +16,7 @@
   "folder_templates": [
     {
       "folder": "/",
-      "template": "__Z/X-Templates/base-template.md"
+      "template": "__X/Templates/base-template.md"
     }
   ],
   "enable_file_templates": false,
