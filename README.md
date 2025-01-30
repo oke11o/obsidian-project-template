@@ -21,6 +21,7 @@ git push --set-upstream origin main
 - Excalidraw
 - Git
 - Imgur
+- List Callouts
 - Markmind
 - Templater
 
